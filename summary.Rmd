@@ -16,7 +16,6 @@ Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activ
 
 http://groupware.les.inf.puc-rio.br/har#ixzz352L6ksUA
 
-### Data Processing
 Load the data sets:
 
 ```{r, cache = TRUE}
@@ -34,3 +33,50 @@ testIndex <- createDataPartition(trainingSet$classe, p = 0.60, list=FALSE)
 trainingData <- trainingSet[testIndex,]
 validationData <- trainingSet[-testIndex,]
 ```
+
+Now, create a parallel training control with five resampling iterations for the next step.
+```{r}
+library(doParallel)
+
+nodes <- detectCores()
+cl <- makeCluster(nodes)
+registerDoParallel(cl)
+
+trainingControl <- trainControl(method='cv', number = 5, allowParallel = TRUE)
+```
+
+Here the model fit is created. The method used is "random forest", and only the data fields used in the provided testing data set were used to create the model.
+```{r cache = TRUE}
+#head(testingSet)
+
+modelFit <- train(classe ~ roll_belt + pitch_belt + yaw_belt + total_accel_belt
+                  + gyros_belt_x + gyros_belt_y + gyros_belt_z
+                  + accel_belt_x +  + accel_belt_y + accel_belt_z
+                  + magnet_belt_x + magnet_belt_y + magnet_belt_z
+                  + roll_arm + pitch_arm + yaw_arm + total_accel_arm
+                  + gyros_arm_x + gyros_arm_y + gyros_arm_z
+                  + accel_arm_x + accel_arm_y + accel_arm_z
+                  + magnet_arm_x + magnet_arm_y + magnet_arm_z
+                  + roll_dumbbell + pitch_dumbbell + yaw_dumbbell
+                  + gyros_dumbbell_x + gyros_dumbbell_y + gyros_dumbbell_z
+                  + accel_dumbbell_x + accel_dumbbell_y + accel_dumbbell_z
+                  + magnet_dumbbell_x + magnet_dumbbell_y + magnet_dumbbell_z
+                  + roll_forearm + pitch_forearm + yaw_forearm
+                  + gyros_forearm_x + gyros_forearm_y + gyros_forearm_z
+                  + accel_forearm_x + accel_forearm_y + accel_forearm_z
+                  + magnet_forearm_x + magnet_forearm_y + magnet_forearm_z,
+                  method = "rf", data = trainingData, trControl = trainingControl)
+
+stopCluster(cl)
+```
+
+Training accuracy (in %): `r modelFit$results[2,2] * 100`
+Training errors (in %:) `r 100 - (modelFit$results[2,2] * 100)`
+
+Now, test against the validation set:
+```{r cache = TRUE}
+validationPredict <- predict(modelFit, validationData)
+validationAccuracy <- postResample(validationPredict, validationData$classe)
+```
+
+The actual out of sample error is (in %): `r (1-as.numeric(validationAccuracy[1])) * 100`
