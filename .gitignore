@@ -1,3 +1,4 @@
 pml-testing.csv
 pml-training.csv
 cache/
+*.txt
