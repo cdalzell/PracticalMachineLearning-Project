@@ -19,16 +19,25 @@ http://groupware.les.inf.puc-rio.br/har#ixzz352L6ksUA
 ### Data Processing
 Load the data sets:
 
-```{r, cache = TRUE}
+
+```r
 trainingSet <- read.csv("pml-training.csv")
 testingSet <- read.csv("pml-testing.csv")
 ```
 
 Next step is to partition the training data into a training set and a validation set. I decided to 60% of the data for training and 40% for validation.
 
-```{r, cache = TRUE}
-library(caret)
 
+```r
+library(caret)
+```
+
+```
+## Loading required package: lattice
+## Loading required package: ggplot2
+```
+
+```r
 testIndex <- createDataPartition(trainingSet$classe, p = 0.60, list=FALSE)
 
 trainingData <- trainingSet[testIndex,]
