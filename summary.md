@@ -24,7 +24,7 @@ trainingSet <- read.csv("pml-training.csv")
 testingSet <- read.csv("pml-testing.csv")
 ```
 
-Next step is to partition the training data into a training set and a validation set. I decided to 60% of the data for training and 40% for validation.
+Next step is to partition the training data into a training set and a validation set. I decided to use 60% of the data for training and 40% for validation.
 
 
 ```r
@@ -47,12 +47,27 @@ Now, create a parallel training control with five resampling iterations for the 
 
 ```r
 library(doParallel)
+```
 
+```
+## Loading required package: foreach
+## foreach: simple, scalable parallel programming from Revolution Analytics
+## Use Revolution R for scalability, fault tolerance and more.
+## http://www.revolutionanalytics.com
+## Loading required package: iterators
+## Loading required package: parallel
+```
+
+```r
 nodes <- detectCores()
 cl <- makeCluster(nodes)
 registerDoParallel(cl)
 
 trainingControl <- trainControl(method='cv', number = 5, allowParallel = TRUE)
+```
+
+```
+## Error: could not find function "trainControl"
 ```
 
 Here the model fit is created. The method used is "random forest", and only the data fields used in the provided testing data set were used to create the model.
@@ -81,8 +96,8 @@ modelFit <- train(classe ~ roll_belt + pitch_belt + yaw_belt + total_accel_belt
 stopCluster(cl)
 ```
 
-Training accuracy (in %): 98.8367
-Training errors (in %:) 1.1633
+Training accuracy: 98.8367%
+Training errors: 1.1633%
 
 Now, test against the validation set:
 
@@ -91,4 +106,4 @@ validationPredict <- predict(modelFit, validationData)
 validationAccuracy <- postResample(validationPredict, validationData$classe)
 ```
 
-The actual out of sample error is (in %): 0.9049
+The actual out of sample error is 0.9049%

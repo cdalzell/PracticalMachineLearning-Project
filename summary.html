@@ -215,7 +215,7 @@ Test Dataset: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-t
 testingSet &lt;- read.csv(&quot;pml-testing.csv&quot;)
 </code></pre>
 
-<p>Next step is to partition the training data into a training set and a validation set. I decided to 60% of the data for training and 40% for validation.</p>
+<p>Next step is to partition the training data into a training set and a validation set. I decided to use 60% of the data for training and 40% for validation.</p>
 
 <pre><code class="r">library(caret)
 </code></pre>
@@ -233,12 +233,24 @@ validationData &lt;- trainingSet[-testIndex,]
 <p>Now, create a parallel training control with five resampling iterations for the next step.</p>
 
 <pre><code class="r">library(doParallel)
+</code></pre>
 
-nodes &lt;- detectCores()
+<pre><code>## Loading required package: foreach
+## foreach: simple, scalable parallel programming from Revolution Analytics
+## Use Revolution R for scalability, fault tolerance and more.
+## http://www.revolutionanalytics.com
+## Loading required package: iterators
+## Loading required package: parallel
+</code></pre>
+
+<pre><code class="r">nodes &lt;- detectCores()
 cl &lt;- makeCluster(nodes)
 registerDoParallel(cl)
 
 trainingControl &lt;- trainControl(method=&#39;cv&#39;, number = 5, allowParallel = TRUE)
+</code></pre>
+
+<pre><code>## Error: could not find function &quot;trainControl&quot;
 </code></pre>
 
 <p>Here the model fit is created. The method used is &ldquo;random forest&rdquo;, and only the data fields used in the provided testing data set were used to create the model.</p>
@@ -266,8 +278,8 @@ modelFit &lt;- train(classe ~ roll_belt + pitch_belt + yaw_belt + total_accel_be
 stopCluster(cl)
 </code></pre>
 
-<p>Training accuracy (in %): 98.8367
-Training errors (in %:) 1.1633</p>
+<p>Training accuracy: 98.8367%
+Training errors: 1.1633%</p>
 
 <p>Now, test against the validation set:</p>
 
@@ -275,7 +287,7 @@ Training errors (in %:) 1.1633</p>
 validationAccuracy &lt;- postResample(validationPredict, validationData$classe)
 </code></pre>
 
-<p>The actual out of sample error is (in %): 0.9049</p>
+<p>The actual out of sample error is 0.9049%</p>
 
 </body>
 
